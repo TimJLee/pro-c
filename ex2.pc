@@ -1,0 +1,51 @@
+#include <stdio.h> 
+#include <string.h> 
+#include <sqlca.h>  
+
+EXEC SQL BEGIN DECLARE SECTION; 
+char connstr[30];
+EXEC SQL END DECLARE SECTION; 
+
+void SqlConnect() { 
+  strcpy_s(connstr, 30, "CSDB226/kingdragon95@leejw");
+  EXEC SQL CONNECT :connstr;  
+
+  if (sqlca.sqlcode != 0 && sqlca.sqlcode != -1405) { 
+    printf("\n connect error message = %s", sqlca.sqlerrm.sqlerrmc); 
+  } else 
+    printf("\n ********** DB CONNECT SUCCESS **********");
+}
+void main(){
+	EXEC SQL BEGIN DECLARE SECTION ; 
+    char p_left[6], p_comp[11], p_s_join[4]; 
+	EXEC SQL END DECLARE SECTION ; 
+
+  	int count=0 ; 
+    SqlConnect(); 
+ 
+  	EXEC SQL DECLARE product_cursor CURSOR FOR SELECT p_left, p_comp, p_s_join FROM product ; 
+ 	EXEC SQL OPEN product_cursor ; 
+  	EXEC SQL FETCH product_cursor INTO :p_left, :p_comp, :p_s_join; 
+
+  	if (sqlca.sqlcode != 0 && sqlca.sqlcode != -1405) { 
+     	EXEC SQL CLOSE product_cursor ; 
+    	return ;
+    }
+while(1) { 
+      count++ ; 
+      printf("\n\n 상품 여분 유무 = %s", p_left);
+      printf("\n 상품 제조 회사 = %s", p_comp); 
+      printf("\n 상품의 서비스 가입 여부 = %s", p_s_join); 
+     
+
+     EXEC SQL FETCH product_cursor INTO :p_left, :p_comp, :p_s_join; 
+
+    	if (sqlca.sqlcode != 0 && sqlca.sqlcode != -1405) { 
+	    		EXEC SQL CLOSE product_cursor ; 
+        	break;
+    	} 
+} 
+  	printf("\n\n 상품 갯수 =%d \n\n", count) ; 
+  	EXEC SQL CLOSE product_cursor; 
+}
+

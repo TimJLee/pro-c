@@ -1,0 +1,40 @@
+#include <stdio.h> 
+#include <string.h> 
+#include <sqlca.h>  
+
+EXEC SQL BEGIN DECLARE SECTION; 
+char connstr[30];
+int no;
+char name[20];
+char phone[20];
+EXEC SQL END DECLARE SECTION; 
+
+void SqlConnect() 
+{ 
+  strcpy_s(connstr, 30, "CSDB226/kingdragon95@leejw");    
+  EXEC SQL CONNECT :connstr;
+
+  if (sqlca.sqlcode != 0 && sqlca.sqlcode != -1405) 
+  { 
+    printf("\n connect error message = %s", sqlca.sqlerrm.sqlerrmc); 
+  } else 
+    printf("\n ********** DB CONNECT SUCCESS **********");
+} 
+
+void main()
+{
+      SqlConnect(); 
+
+      EXEC SQL CREATE TABLE proc (no int, name char(20), phone char(20));
+      EXEC SQL INSERT INTO proc VALUES(6,'jyp','010-9431-1232'); 
+      EXEC SQL SELECT no, name, phone INTO :no, :name, :phone FROM proc;
+
+      printf("\n****************\n");
+      printf("no : %d\n", no);
+      printf("name: %s\n", name);
+	  printf("phone : %s\n", phone);
+      printf("****************\n");
+
+      EXEC SQL DROP TABLE proc; 
+      EXEC SQL COMMIT WORK RELEASE;   
+} 
